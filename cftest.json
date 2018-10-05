@@ -78,25 +78,6 @@
             "VpcId": {"Ref": "myVPC"},
             "PeerVpcId": {"Ref": "myVPC2"}
             }
-        },
-       
-    "RDPSecurityGroup" : {
-        "Type" : "AWS::EC2::SecurityGroup",
-        "Properties" : {
-            "VpcId" : {"Ref" : "myVPC"},
-            "GroupName" : "RDPSecurityGroup",
-            "GroupDescription" : "Enable SSH access via port 3389",
-            "SecurityGroupIngress" : [ { "IpProtocol" : "tcp", "FromPort" : "3389", "ToPort" : "3389", "CidrIp" : "0.0.0.0/0" } ]
-            }
-        },
-    
-    "EC2WindowsInstance" : {   
-        "Type" : "AWS::EC2::Instance", 
-        "Properties" : {
-            "ImageId" : "ami-0f1155cc2cb6b0cfd",
-            "InstanceType" : "t2.medium",
-            "KeyName" : "foo"
-            }
-        }     
+        }  
     }
 }
