@@ -1,0 +1,102 @@
+{
+   "AWSTemplateFormatVersion" : "2010-09-09",       
+   "Resources" : {
+       
+    "myVPC" : {
+       "Type" : "AWS::EC2::VPC",
+       "Properties" : {
+            "CidrBlock" : "10.0.0.0/16",
+    	    "EnableDnsSupport" : "false",
+    	    "EnableDnsHostnames" : "false",
+            "InstanceTenancy" : "dedicated",
+            "Tags" : [ {"Key" : "Name", "Value" : "TestPublicVPC"} ]
+            }
+       },
+    
+       "myPrivateSubnet01" : {
+         "Type" : "AWS::EC2::Subnet",
+         "Properties" : {
+            "VpcId" : { "Ref" : "myVPC" },
+            "CidrBlock" : "10.0.0.0/24",
+            "AvailabilityZone" : "ap-southeast-2a",
+            "Tags" : [ { "Key" : "Name", "Value" : "CFPrivateSubnet" } ]
+         }
+       },
+       
+       "myPublicSubnet01" : {
+         "Type" : "AWS::EC2::Subnet",
+         "Properties" : {
+            "VpcId" : { "Ref" : "myVPC" },
+            "CidrBlock" : "10.0.1.0/24",
+            "AvailabilityZone" : "ap-southeast-2a",
+            "Tags" : [ { "Key" : "Name", "Value" : "CFPublicSubnet" } ]
+         }
+       },
+       
+       "InternetGateway" : {
+         "Type" : "AWS::EC2::InternetGateway",
+         "Properties" : {
+            "Tags" : [
+            {"Key" : "Name", "Value" : { "Ref" : "AWS::StackId"} },
+            {"Key" : "Network", "Value" : "Public" }
+            ]
+        }
+    },
+
+    "GatewayToInternet" : {
+       "Type" : "AWS::EC2::VPCGatewayAttachment",
+       "Properties" : {
+         "VpcId" : { "Ref" : "myVPC" },
+         "InternetGatewayId" : { "Ref" : "InternetGateway" }
+       }
+    },
+       
+    "myVPC2" : {
+         "Type" : "AWS::EC2::VPC",
+         "Properties" : {
+            "CidrBlock" : "192.168.0.0/16",
+    	    "EnableDnsSupport" : "false",
+    	    "EnableDnsHostnames" : "false",
+            "InstanceTenancy" : "dedicated",
+            "Tags" : [ {"Key" : "Name", "Value" : "TestPrivateVPC"} ]
+            }
+       },
+    
+    "myPrivateSubnet02" : {
+         "Type" : "AWS::EC2::Subnet",
+         "Properties" : {
+            "VpcId" : { "Ref" : "myVPC2" },
+            "CidrBlock" : "192.168.1.0/24",
+            "AvailabilityZone" : "ap-southeast-2a",
+            "Tags" : [ { "Key" : "Name", "Value" : "CFPrivateSubnet" } ]
+         }
+       },
+       
+    "myVPCPeeringConnection": {
+         "Type": "AWS::EC2::VPCPeeringConnection",
+         "Properties": {
+            "VpcId": {"Ref": "myVPC"},
+            "PeerVpcId": {"Ref": "myVPC2"}
+            }
+        },
+       
+    "RDPSecurityGroup" : {
+        "Type" : "AWS::EC2::SecurityGroup",
+        "Properties" : {
+            "VpcId" : {"Ref" : "myVPC"},
+            "GroupName" : "RDPSecurityGroup",
+            "GroupDescription" : "Enable SSH access via port 3389",
+            "SecurityGroupIngress" : [ { "IpProtocol" : "tcp", "FromPort" : "3389", "ToPort" : "3389", "CidrIp" : "0.0.0.0/0" } ]
+            }
+        },
+    
+    "EC2WindowsInstance" : {   
+        "Type" : "AWS::EC2::Instance", 
+        "Properties" : {
+            "ImageId" : "ami-0f1155cc2cb6b0cfd",
+            "InstanceType" : "t2.medium",
+            "KeyName" : "foo"
+            }
+        }     
+    }
+}
